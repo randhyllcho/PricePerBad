@@ -57,8 +57,8 @@ class ViewController: UIViewController, UITextFieldDelegate {
     
     self.clearButton.isEnabled = false
     
-    hideShowKeyboard.addObserver(self, selector: #selector(ViewController.keyboardWillShow(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-    hideShowKeyboard.addObserver(self, selector: #selector(ViewController.keyboardWillHide(_:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+    hideShowKeyboard.addObserver(self, selector: #selector(ViewController.keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+    hideShowKeyboard.addObserver(self, selector: #selector(ViewController.keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
   }
   
   //MARK: Steppers and Buttons
@@ -147,18 +147,18 @@ class ViewController: UIViewController, UITextFieldDelegate {
     return (formatter.number(from: text)?.doubleValue)!
   }
   
-  func tap(_ tap: UIGestureRecognizer) {
+  @objc func tap(_ tap: UIGestureRecognizer) {
     self.view.endEditing(true)
   }
   
-  func keyboardWillShow(_ notification: Notification) {
+  @objc func keyboardWillShow(_ notification: Notification) {
     self.shadeView.alpha = 0.35
     self.unitsStack.isHidden = true
     self.stepperStack.isHidden = true
     self.clearButton.isHidden = true
     UIView.animate(withDuration: 0.5, animations: { 
       self.imageView.alpha = 0.25
-      if let keyboardSize = ((notification as NSNotification).userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+      if let keyboardSize = ((notification as NSNotification).userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
         if self.view.frame.origin.y == 0 {
           self.view.frame.origin.y -= keyboardSize.height
         }
@@ -166,14 +166,14 @@ class ViewController: UIViewController, UITextFieldDelegate {
     }) 
   }
   
-  func keyboardWillHide(_ notification: Notification) {
+  @objc func keyboardWillHide(_ notification: Notification) {
     self.shadeView.alpha = 0
     self.unitsStack.isHidden = false
     self.stepperStack.isHidden = false
     self.clearButton.isHidden = false
     self.imageView.alpha = 0
     getPPB()
-    if let keyboardSize = ((notification as NSNotification).userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+    if let keyboardSize = ((notification as NSNotification).userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
       self.view.frame.origin.y += keyboardSize.height
     }
   }
@@ -210,10 +210,10 @@ class ViewController: UIViewController, UITextFieldDelegate {
     let enabledColor = UIColor(hue: 0.55, saturation: 0.62, brightness: 0.18, alpha: 1)
     if button.isEnabled == false && stepperValue.value > 0  {
       button.isEnabled = true
-      button.setTitleColor(enabledColor, for: UIControlState())
+      button.setTitleColor(enabledColor, for: UIControl.State())
     } else if stepperValue.value == 0 {
       button.isEnabled = false
-      button.setTitleColor(UIColor.lightGray, for: UIControlState())
+      button.setTitleColor(UIColor.lightGray, for: UIControl.State())
     }
   }
 }
